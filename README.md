@@ -7,7 +7,7 @@
 
 # Hey, I'm Niamat.
 
-**Software engineer · Full-stack & mobile developer · Founder of [iVynLabs](https://www.ivynlabs.com)**
+**Software engineer · Full-stack & mobile developer · Product builder**
 
 I turn ideas into software people can actually use. Based in **Sri Lanka**, working worldwide — building SaaS platforms, mobile apps, custom websites, and AI systems. I care about the pixels, the architecture, and what happens after launch.
 
@@ -45,7 +45,6 @@ A restaurant operating system connecting QR menus, group ordering, kitchen displ
 | Project | What I built | My role |
 | :--- | :--- | :--- |
 | [**Harriet Shopping** →](https://harrietshopping.com) | Multi-vendor marketplace: storefronts, catalogue, checkout, and fulfilment. | Lead engineer |
-| [**iVynLabs** →](https://www.ivynlabs.com) | The studio and product home for the Vyn family. | Founder, design & build |
 | [**ZRI Adventures** →](https://www.zriadventures.com) | Travel discovery, itinerary planning, and guided-trip booking. | Frontend & booking flow |
 
 [Explore all case studies →](https://niamat.dev/work)
