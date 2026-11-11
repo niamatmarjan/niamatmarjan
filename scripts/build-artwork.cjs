@@ -1,70 +1,44 @@
-// Optional artwork authoring tool: npm install --no-save fontkit
-// node scripts/build-artwork.cjs <Archivo-Condensed-ExtraBold.ttf> <Archivo-SemiBold.ttf>
-// Fonts are converted to vector paths; readers do not download a font.
-const fs = require('node:fs');
-const path = require('node:path');
-const fontkit = require('fontkit');
-const display = fontkit.openSync(process.argv[2]);
-const body = fontkit.openSync(process.argv[3]);
-const out = path.join(__dirname, '..', 'assets');
-const C = { maroon: '#7a1712', deep: '#5e110d', chalk: '#edefea', yellow: '#ffc20e', ink: '#141210', muted: '#e0bcb0' };
-
-function type(value, x, y, size, fill, maxWidth = Infinity, font = display) {
-  const run = font.layout(value);
-  const scale = size / font.unitsPerEm;
-  const width = run.positions.reduce((sum, position) => sum + position.xAdvance, 0) * scale;
-  const fit = Math.min(1, maxWidth / width);
-  let cursor = 0;
-  let shapes = '';
-  run.glyphs.forEach((glyph, index) => {
-    const position = run.positions[index];
-    shapes += `<path transform="translate(${cursor + position.xOffset} ${position.yOffset})" d="${glyph.path.toSVG()}"/>`;
-    cursor += position.xAdvance;
-  });
-  return `<g fill="${fill}" transform="translate(${x} ${y}) scale(${scale * fit} ${-scale})">${shapes}</g>`;
+// Self-contained Full Stop artwork generator, based on the portfolio design system.
+// Requires Node.js only; no remote font fetches or API tokens.
+const fs = require("node:fs");
+const path = require("node:path");
+const P = {"paper":"#EEEAE2","ink":"#1A1917","night":"#141311","verm":"#E8552C","dim":"#655F56","nightDim":"#A39E94"};
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&apos;"}[c]));}
+function tx(s,x,y,size,color,weight=700,extra=""){return `<text x="${x}" y="${y}" font-family="Arial,Helvetica,sans-serif" font-size="${size}" font-weight="${weight}" fill="${color}" ${extra}>${esc(s)}</text>`;}
+function bit(x,y,k){return `<g transform="translate(${x} ${y}) scale(${k/100})"><ellipse cx="50" cy="116" rx="37" ry="3.5" opacity=".14" fill="${P.ink}"/><rect x="20" y="94" width="17" height="18" rx="7" fill="${P.ink}"/><rect x="63" y="94" width="17" height="18" rx="7" fill="${P.ink}"/><rect x="90" y="51" width="26" height="12" rx="6" fill="${P.verm}"/><rect width="100" height="100" rx="15" fill="${P.verm}"/><rect x="25" y="27" width="13" height="25" rx="6.5" fill="${P.ink}"/><rect x="62" y="27" width="13" height="25" rx="6.5" fill="${P.ink}"/><circle cx="33.5" cy="33" r="2.4" fill="${P.paper}"/><circle cx="70.5" cy="33" r="2.4" fill="${P.paper}"/><path d="M39 65 Q50 77 61 65" fill="none" stroke="${P.ink}" stroke-width="3.5" stroke-linecap="round"/></g>`;}
+function wrap(w,h,title,body){return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}" role="img" aria-label="${esc(title)}">${body}</svg>\n`;}
+function banner(m){
+ const w=m?520:1080,h=m?520:432,p=m?28:46;let x=`<rect width="${w}" height="${h}" fill="${P.paper}"/>`;
+ x+=tx("niamat",p,m?54:66,m?36:41,P.ink,800,'letter-spacing="-1.8"');
+ x+=`<rect x="${m?145:178}" y="${m?38:46}" width="${m?11:13}" height="${m?11:13}" rx="2" fill="${P.verm}"/>`;
+ if(m){
+ x+=tx("SOFTWARE ENGINEER / SRI LANKA",28,91,13,P.dim,600,'letter-spacing=".8"');
+ x+=`<path d="M28 117H492" stroke="${P.ink}" stroke-opacity=".18"/>`;
+ x+=tx("NIAMAT",28,219,89,P.ink,800,'letter-spacing="-5"')+tx("MARJAN",28,320,89,P.ink,800,'letter-spacing="-5"')+bit(408,258,65);
+ x+=`<path d="M28 364H492" stroke="${P.ink}" stroke-opacity=".18"/>`;
+ x+=tx("I BUILD THINGS",28,410,37,P.ink,800,'letter-spacing="-1.5"')+tx("THAT SHIP.",28,451,37,P.ink,800,'letter-spacing="-1.5"');
+ x+=tx("WEB / MOBILE / SAAS / AI / SYSTEMS",28,484,12,P.dim,600)+tx("niamat.dev",28,507,12,P.ink,700);
+ }else{
+ x+=tx("SOFTWARE ENGINEER / FULL-STACK & MOBILE",1032,47,16,P.ink,600,'text-anchor="end"');
+ x+=tx("SRI LANKA / WORKING WORLDWIDE",1032,71,13,P.dim,500,'text-anchor="end"');
+ x+=`<path d="M46 92H1034" stroke="${P.ink}" stroke-opacity=".18"/>`;
+ x+=tx("NIAMAT",46,229,139,P.ink,800,'letter-spacing="-7"')+tx("MARJAN",46,352,139,P.ink,800,'letter-spacing="-7"');
+ x+=tx("THE FULL STOP",795,164,17,P.dim,600,'letter-spacing="1"')+tx("THAT SHIPS.",795,191,17,P.dim,600,'letter-spacing="1"')+bit(796,208,102);
+ x+=`<path d="M46 380H1034" stroke="${P.ink}" stroke-opacity=".18"/>`;
+ x+=tx("WEB / MOBILE / SAAS / AI / SYSTEMS",46,411,16,P.ink,600)+tx("niamat.dev",1034,411,16,P.ink,700,'text-anchor="end"');
+ }
+ return wrap(w,h,"Niamat Marjan — Full Stop profile banner",x);
 }
-
-function svg(width, height, label, content) {
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="title desc"><title id="title">${label}</title><desc id="desc">Custom Route Board artwork for Niamat Marjan, software engineer in Sri Lanka working worldwide. Archivo lettering outlined under the SIL Open Font License.</desc><style>.journey{animation:journey 4s cubic-bezier(.16,1,.3,1) 1}@keyframes journey{from{stroke-dashoffset:1000}to{stroke-dashoffset:0}}@media(prefers-reduced-motion:reduce){.journey{animation:none}}</style>${content}</svg>\n`;
+function footer(){
+ let x=`<rect width="1080" height="120" fill="${P.night}"/><path d="M40 23H1040" stroke="${P.paper}" stroke-opacity=".2"/>`;
+ x+=tx("niamat",40,86,58,P.paper,800,'letter-spacing="-3"')+`<rect x="223" y="74" width="15" height="15" rx="3" fill="${P.verm}"/>`;
+ x+=tx("BUILD IT CAREFULLY. SHIP IT.",384,64,23,P.paper,700)+tx("SRI LANKA / WORKING WORLDWIDE",384,88,14,P.nightDim,500);
+ x+=tx("niamat.dev",1038,91,15,P.paper,600,'text-anchor="end"');
+ return wrap(1080,120,"niamat. — Build it carefully. Ship it.",x);
 }
-
-function header(mobile) {
-  const w = mobile ? 520 : 1080;
-  const h = mobile ? 554 : 480;
-  const p = mobile ? 28 : 40;
-  let s = `<rect width="${w}" height="${h}" fill="${C.maroon}"/>`;
-  s += `<rect x="${p}" y="28" width="${mobile ? 119 : 148}" height="52" fill="${C.yellow}"/>`;
-  s += type('niamat.', p + 12, 66, mobile ? 40 : 47, C.ink, mobile ? 95 : 124);
-  s += type('SOFTWARE ENGINEER', mobile ? 284 : 768, 48, mobile ? 15 : 21, C.chalk, mobile ? 208 : 272, body);
-  s += type('SRI LANKA / WORLDWIDE', mobile ? 284 : 768, 71, mobile ? 13 : 17, C.muted, mobile ? 208 : 272, body);
-  s += `<path d="M${p} 105H${w - p}" stroke="${C.muted}" opacity=".45"/>`;
-  if (mobile) {
-    s += type('FROM FIRST', p - 3, 210, 114, C.chalk, w - p * 2);
-    s += type('COMMIT.', p - 3, 327, 139, C.chalk, w - p * 2);
-    s += type('TO PRODUCTION.', p - 2, 418, 88, C.yellow, w - p * 2);
-    s += `<path d="M${p} 465H${w - p}" stroke="${C.muted}" opacity=".4"/>`;
-    s += type('WEB / MOBILE / SAAS / AI', p, 499, 20, C.chalk, w - 2 * p, body);
-    s += type('THE IDEA IS ONLY THE BEGINNING.', p, 530, 14, C.muted, w - 2 * p, body);
-  } else {
-    s += type('FROM FIRST COMMIT.', p - 4, 236, 144, C.chalk, w - p * 2);
-    s += type('TO PRODUCTION.', p - 4, 361, 164, C.yellow, w - p * 2);
-    s += `<path d="M${p} 416H${w - p}" stroke="${C.muted}" opacity=".4"/><path class="journey" d="M${p} 416H${w - p}" stroke="${C.yellow}" stroke-width="3" stroke-dasharray="1000"/>`;
-    ['SCOPE', 'ARCHITECT', 'BUILD', 'SHIP'].forEach((label, i) => {
-      const x = p + i * (w - p * 2 - 83) / 3;
-      s += `<rect x="${x}" y="410" width="12" height="12" fill="${i === 3 ? C.yellow : C.maroon}" stroke="${i === 3 ? C.yellow : C.muted}" stroke-width="2"/>`;
-      s += type(label, x, 455, 18, i === 3 ? C.yellow : C.chalk, 100, body);
-    });
-  }
-  return svg(w, h, 'Niamat Marjan — From first commit to production.', s);
-}
-
-let footer = `<rect width="1080" height="106" fill="${C.ink}"/><path d="M0 0H1080" stroke="${C.yellow}" stroke-width="4"/>`;
-footer += type('niamat.', 32, 73, 54, C.yellow, 190);
-footer += type('ENGINEERED IN SRI LANKA.', 330, 47, 19, C.chalk, 700, body);
-footer += type('SHIPPED WORLDWIDE.', 330, 76, 19, C.chalk, 700, body);
-footer += `<path d="M978 53h57m-17-17 17 17-17 17" fill="none" stroke="${C.yellow}" stroke-width="4"/>`;
-fs.mkdirSync(out, { recursive: true });
-fs.writeFileSync(path.join(out, 'header.svg'), header(false));
-fs.writeFileSync(path.join(out, 'header-mobile.svg'), header(true));
-fs.writeFileSync(path.join(out, 'footer.svg'), svg(1080, 106, 'niamat. — Engineered in Sri Lanka. Shipped worldwide.', footer));
-console.log('Created outlined header, mobile header, and footer artwork.');
+const out = path.join(__dirname,"..","assets");
+fs.mkdirSync(out,{recursive:true});
+fs.writeFileSync(path.join(out,"header.svg"),banner(false));
+fs.writeFileSync(path.join(out,"header-mobile.svg"),banner(true));
+fs.writeFileSync(path.join(out,"footer.svg"),footer());
+console.log("Regenerated Full Stop profile artwork.");

@@ -69,8 +69,8 @@ function draw(dark, mobile) {
   const height = mobile ? 390 : 382;
   const padding = mobile ? 28 : 40;
   const colors = dark
-    ? { bg: '#1e1614', text: '#edefea', muted: '#c4b6ac', rule: '#4f3730', accent: '#ffc20e', levels: ['#382823', '#704338', '#a8583e', '#da8846', '#ffc20e'] }
-    : { bg: '#edefea', text: '#321e19', muted: '#69564e', rule: '#c9beb2', accent: '#7a1712', levels: ['#d9d7cc', '#d8b7a0', '#bb795b', '#95432f', '#7a1712'] };
+    ? { bg: '#141311', text: '#eeeae2', muted: '#a39e94', rule: '#403f3a', accent: '#f0663f', levels: ['#2c2926', '#73372a', '#a7432b', '#d75833', '#f0663f'] }
+    : { bg: '#eeeae2', text: '#1a1917', muted: '#655f56', rule: '#cfc8bc', accent: '#a83214', levels: ['#dad4c8', '#eab7a7', '#df8d72', '#c95734', '#a83214'] };
   const text = (x, y, value, size = 15, fill = colors.text, weight = 400, extra = '') => `<text x="${x}" y="${y}" font-size="${size}" fill="${fill}" font-weight="${weight}" ${extra}>${xml(value)}</text>`;
   const stats = [[number(calendar.total), 'contributions / past year'], [number(profile.public_repos), 'public repositories'], [number(profile.followers), 'followers']];
   let contents = `<rect width="${width}" height="${height}" fill="${colors.bg}"/>`;
